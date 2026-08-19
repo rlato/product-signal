@@ -1,65 +1,72 @@
-import React from 'react'
+import React, { useState } from 'react'
 import { createRoot } from 'react-dom/client'
-import { BarChart3, BrainCircuit, ChevronRight, CircleCheck, FileText, Lightbulb, MessageSquareText, Sparkles, Target, Upload } from 'lucide-react'
+import { BarChart3, BrainCircuit, ChevronRight, CircleCheck, FileText, Lightbulb, MessageSquareText, Sparkles, Target, Upload, X } from 'lucide-react'
 import './styles.css'
 
+const seedFeedback = [
+  { id: 1, customer: 'Northstar Wellness', text: 'I keep entering the same client information in two different places. It takes time every morning.', source: 'Interview', date: 'Aug 18' },
+  { id: 2, customer: 'Harbour Physio', text: 'The reports have the information I need, but I am not always sure what I should do with it.', source: 'Support', date: 'Aug 16' },
+  { id: 3, customer: 'Peak Massage', text: 'When I am away from my computer I have to wait until I get back to do simple admin tasks.', source: 'Interview', date: 'Aug 14' },
+]
 const opportunities = [
   { title: 'Reduce repetitive data entry', evidence: '8 of 23 customers mentioned entering the same information more than once.', impact: 'High', confidence: 'High', effort: 'Medium', status: 'Investigate' },
   { title: 'Make reporting easier to understand', evidence: '6 customers struggled to turn reports into actionable decisions.', impact: 'Medium', confidence: 'High', effort: 'Low', status: 'Build' },
   { title: 'Improve mobile workflow', evidence: '5 customers asked for faster access while working away from their desk.', impact: 'High', confidence: 'Medium', effort: 'High', status: 'Investigate' },
 ]
+const nav = [['Overview', BarChart3], ['Feedback', MessageSquareText], ['Opportunities', Lightbulb], ['Prioritization', Target]]
 
 function App() {
-  return (
-    <div className="app-shell">
-      <aside className="sidebar">
-        <div className="brand"><div className="brand-mark"><Sparkles size={17} /></div><span>ProductSignal</span></div>
-        <nav>
-          <a className="active"><BarChart3 size={17} /> Overview</a>
-          <a><MessageSquareText size={17} /> Feedback</a>
-          <a><Lightbulb size={17} /> Opportunities</a>
-          <a><Target size={17} /> Prioritization</a>
-        </nav>
-        <div className="sidebar-bottom">
-          <div className="workspace-label">WORKSPACE</div>
-          <div className="workspace"><div className="avatar">PM</div><div><strong>Product team</strong><span>Discovery workspace</span></div></div>
-        </div>
-      </aside>
+  const [page, setPage] = useState('Overview')
+  const [feedback, setFeedback] = useState(seedFeedback)
+  const [showAdd, setShowAdd] = useState(false)
+  const [newFeedback, setNewFeedback] = useState('')
+  const [customer, setCustomer] = useState('')
+  const [notice, setNotice] = useState('')
+  const [analysis, setAnalysis] = useState(false)
 
-      <main className="main">
-        <header className="topbar"><div><div className="eyebrow">PRODUCT DISCOVERY</div><h1>Turn feedback into better decisions.</h1></div><button className="primary"><Upload size={16} /> Add feedback</button></header>
+  function addFeedback() {
+    if (!newFeedback.trim()) return
+    setFeedback([{ id: Date.now(), customer: customer || 'New customer', text: newFeedback.trim(), source: 'Added manually', date: 'Today' }, ...feedback])
+    setNewFeedback(''); setCustomer(''); setShowAdd(false); setPage('Feedback'); setNotice('Feedback added. Ready for analysis.')
+    setTimeout(() => setNotice(''), 3000)
+  }
+  function runAnalysis() { setAnalysis(true); setTimeout(() => setAnalysis(false), 1400) }
 
-        <section className="summary-grid">
-          <div className="summary-card"><div className="summary-icon"><MessageSquareText size={18} /></div><div><span>Feedback analyzed</span><strong>23</strong><small>from 12 customers</small></div></div>
-          <div className="summary-card"><div className="summary-icon"><BrainCircuit size={18} /></div><div><span>Problems identified</span><strong>7</strong><small>3 high-confidence themes</small></div></div>
-          <div className="summary-card"><div className="summary-icon"><Lightbulb size={18} /></div><div><span>Opportunities</span><strong>3</strong><small>ready for prioritization</small></div></div>
-        </section>
-
-        <section className="content-grid">
-          <div className="panel themes-panel">
-            <div className="panel-heading"><div><h2>Top customer themes</h2><p>What customers are telling you most often.</p></div><button className="text-button">View all <ChevronRight size={15} /></button></div>
-            <div className="theme-list">
-              <div className="theme"><div className="theme-number">01</div><div className="theme-body"><div className="theme-title">Too much manual work <span className="pill high">High confidence</span></div><p>Customers repeatedly describe duplicate entry and repetitive administrative tasks.</p><div className="evidence"><span>8 mentions</span><span>•</span><span>5 customers</span></div></div></div>
-              <div className="theme"><div className="theme-number">02</div><div className="theme-body"><div className="theme-title">Reporting is hard to act on <span className="pill">High confidence</span></div><p>Customers can access data but struggle to turn it into useful decisions.</p><div className="evidence"><span>6 mentions</span><span>•</span><span>4 customers</span></div></div></div>
-              <div className="theme"><div className="theme-number">03</div><div className="theme-body"><div className="theme-title">Need access on the go <span className="pill">Medium confidence</span></div><p>Several customers want to complete common tasks away from their desk.</p><div className="evidence"><span>5 mentions</span><span>•</span><span>4 customers</span></div></div></div>
-            </div>
-          </div>
-
-          <div className="panel ai-panel">
-            <div className="ai-header"><div className="ai-icon"><BrainCircuit size={18} /></div><div><h2>AI analysis</h2><p>Helping you find signal, not make the decision.</p></div></div>
-            <div className="ai-callout"><Sparkles size={16} /><div><strong>One thing to investigate</strong><p>Manual data entry appears across multiple customer segments. Before committing to a solution, quantify the time cost and identify where the workflow breaks down most.</p></div></div>
-            <div className="ai-meta"><CircleCheck size={15} /> Evidence linked to every recommendation</div>
-            <button className="secondary">Analyze new feedback <ChevronRight size={15} /></button>
-          </div>
-        </section>
-
-        <section className="panel opportunities-panel">
-          <div className="panel-heading"><div><h2>Product opportunities</h2><p>Evidence-backed problems ready for a product decision.</p></div><button className="text-button">Prioritize <ChevronRight size={15} /></button></div>
-          <div className="opportunity-table"><div className="table-head"><span>OPPORTUNITY</span><span>EVIDENCE</span><span>IMPACT</span><span>EFFORT</span><span>STATUS</span></div>{opportunities.map((item) => <div className="table-row" key={item.title}><div><strong>{item.title}</strong><small>{item.confidence} confidence</small></div><p>{item.evidence}</p><span className={`score ${item.impact.toLowerCase()}`}>{item.impact}</span><span>{item.effort}</span><span className={`status ${item.status.toLowerCase()}`}>{item.status}</span></div>)}</div>
-        </section>
-      </main>
-    </div>
-  )
+  return <div className="app-shell">
+    <aside className="sidebar">
+      <div className="brand"><div className="brand-mark"><Sparkles size={17} /></div><span>ProductSignal</span></div>
+      <nav>{nav.map(([label, Icon]) => <button key={label} className={page === label ? 'nav-item active' : 'nav-item'} onClick={() => setPage(label)}><Icon size={17} /> {label}</button>)}</nav>
+      <div className="sidebar-bottom"><div className="workspace-label">WORKSPACE</div><div className="workspace"><div className="avatar">PM</div><div><strong>Product team</strong><span>Discovery workspace</span></div></div></div>
+    </aside>
+    <main className="main">
+      <header className="topbar"><div><div className="eyebrow">PRODUCT DISCOVERY</div><h1>{page === 'Overview' ? 'Turn feedback into better decisions.' : page}</h1><p className="page-description">{page === 'Overview' ? 'Find the signal in customer feedback, then make the product decision.' : 'Explore the evidence and decide what deserves your attention.'}</p></div><button className="primary" onClick={() => setShowAdd(true)}><Upload size={16} /> Add feedback</button></header>
+      {notice && <div className="notice"><CircleCheck size={16} /> {notice}</div>}
+      {page === 'Overview' && <Overview feedback={feedback} analysis={analysis} runAnalysis={runAnalysis} setPage={setPage} />}
+      {page === 'Feedback' && <FeedbackPage feedback={feedback} />}
+      {page === 'Opportunities' && <OpportunityTable detailed />}
+      {page === 'Prioritization' && <Prioritization />}
+    </main>
+    {showAdd && <div className="modal-backdrop" onClick={() => setShowAdd(false)}><div className="modal" onClick={e => e.stopPropagation()}><div className="modal-header"><div><h2>Add customer feedback</h2><p>Capture the raw evidence before turning it into an insight.</p></div><button className="close" onClick={() => setShowAdd(false)}><X size={18} /></button></div><label>Customer<input value={customer} onChange={e => setCustomer(e.target.value)} placeholder="e.g. Northstar Wellness" /></label><label>Feedback<textarea value={newFeedback} onChange={e => setNewFeedback(e.target.value)} placeholder="Paste a customer quote, interview note, or support request..." rows={5} /></label><div className="modal-actions"><button className="secondary" onClick={() => setShowAdd(false)}>Cancel</button><button className="primary" onClick={addFeedback}>Add feedback</button></div></div></div>}
+  </div>
 }
+
+function Overview({ feedback, analysis, runAnalysis, setPage }) {
+  const themes = [
+    ['Too much manual work', 'Customers describe repetitive administrative tasks and duplicate entry.', '8 mentions', '5 customers', 'High'],
+    ['Reporting is hard to act on', 'Customers can access data but struggle to turn it into useful decisions.', '6 mentions', '4 customers', 'High'],
+    ['Need access on the go', 'Customers want to complete common tasks away from their desk.', '5 mentions', '4 customers', 'Medium'],
+  ]
+  return <>
+    <section className="summary-grid"><Stat icon={MessageSquareText} label="Feedback analyzed" value={feedback.length + 20} note="from 12 customers" /><Stat icon={BrainCircuit} label="Problems identified" value="7" note="3 high-confidence themes" /><Stat icon={Lightbulb} label="Opportunities" value="3" note="ready for prioritization" /></section>
+    <section className="content-grid">
+      <div className="panel themes-panel"><div className="panel-heading"><div><h2>Top customer themes</h2><p>What customers are telling you most often.</p></div><button className="text-button" onClick={() => setPage('Feedback')}>View feedback <ChevronRight size={15} /></button></div><div className="theme-list">{themes.map((t, i) => <div className="theme" key={t[0]}><div className="theme-number">0{i + 1}</div><div className="theme-body"><div className="theme-title">{t[0]} <span className={t[4] === 'High' ? 'pill high' : 'pill'}>{t[4]} confidence</span></div><p>{t[1]}</p><div className="evidence"><span>{t[2]}</span><span>•</span><span>{t[3]}</span></div></div></div>)}</div></div>
+      <div className="panel ai-panel"><div className="ai-header"><div className="ai-icon"><BrainCircuit size={18} /></div><div><h2>AI analysis</h2><p>Helping you find signal, not make the decision.</p></div></div><div className="ai-callout"><Sparkles size={16} /><div><strong>{analysis ? 'Analyzing feedback...' : 'One thing to investigate'}</strong><p>{analysis ? 'Looking for recurring problems, evidence, and gaps in understanding.' : 'Manual data entry appears across multiple customer segments. Before committing to a solution, quantify the time cost and identify where the workflow breaks down most.'}</p></div></div><div className="ai-meta"><CircleCheck size={15} /> Evidence linked to every recommendation</div><button className="secondary" onClick={runAnalysis}>{analysis ? 'Analyzing...' : 'Analyze new feedback'} <ChevronRight size={15} /></button></div>
+    </section><OpportunityTable onClick={() => setPage('Prioritization')} />
+  </>
+}
+function Stat({ icon: Icon, label, value, note }) { return <div className="summary-card"><div className="summary-icon"><Icon size={18} /></div><div><span>{label}</span><strong>{value}</strong><small>{note}</small></div></div> }
+function FeedbackPage({ feedback }) { return <div className="panel feedback-panel"><div className="panel-heading"><div><h2>Customer feedback</h2><p>Raw evidence stays visible so AI insights can be challenged.</p></div><span className="feedback-count">{feedback.length} recent items</span></div><div className="feedback-list">{feedback.map(item => <div className="feedback-item" key={item.id}><div className="feedback-icon"><FileText size={16} /></div><div className="feedback-content"><p>“{item.text}”</p><div className="feedback-meta"><strong>{item.customer}</strong><span>{item.source}</span><span>{item.date}</span></div></div></div>)}</div></div> }
+function OpportunityTable({ detailed = false, onClick }) { return <section className={`panel opportunities-panel ${detailed ? 'detailed' : ''}`}><div className="panel-heading"><div><h2>Product opportunities</h2><p>Evidence-backed problems ready for a product decision.</p></div>{!detailed && <button className="text-button" onClick={onClick}>Prioritize <ChevronRight size={15} /></button>}</div><div className="opportunity-table"><div className="table-head"><span>OPPORTUNITY</span><span>EVIDENCE</span><span>IMPACT</span><span>EFFORT</span><span>STATUS</span></div>{opportunities.map(item => <div className="table-row" key={item.title}><div><strong>{item.title}</strong><small>{item.confidence} confidence</small></div><p>{item.evidence}</p><span className={`score ${item.impact.toLowerCase()}`}>{item.impact}</span><span>{item.effort}</span><span className={`status ${item.status.toLowerCase()}`}>{item.status}</span></div>)}</div></section> }
+function Prioritization() { return <div className="panel prioritization"><div className="panel-heading"><div><h2>Prioritization</h2><p>Use judgment to decide what happens next. AI provides context, not the final answer.</p></div></div><div className="priority-grid">{opportunities.map((o, i) => <div className="priority-card" key={o.title}><div className="priority-top"><span className="rank">0{i + 1}</span><span className={`status ${o.status.toLowerCase()}`}>{o.status}</span></div><h3>{o.title}</h3><p>{o.evidence}</p><div className="score-row"><div><span>Impact</span><strong>{o.impact}</strong></div><div><span>Effort</span><strong>{o.effort}</strong></div><div><span>Confidence</span><strong>{o.confidence}</strong></div></div><button className="decision-button">Make product decision <ChevronRight size={14} /></button></div>)}</div></div> }
 
 createRoot(document.getElementById('root')).render(<React.StrictMode><App /></React.StrictMode>)
