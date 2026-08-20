@@ -23,6 +23,7 @@ function App() {
   const [customer, setCustomer] = useState('')
   const [notice, setNotice] = useState('')
   const [analysis, setAnalysis] = useState(false)
+  const [analysisComplete, setAnalysisComplete] = useState(false)
 
   function addFeedback() {
     if (!newFeedback.trim()) return
@@ -30,7 +31,10 @@ function App() {
     setNewFeedback(''); setCustomer(''); setShowAdd(false); setPage('Feedback'); setNotice('Feedback added. Ready for analysis.')
     setTimeout(() => setNotice(''), 3000)
   }
-  function runAnalysis() { setAnalysis(true); setTimeout(() => setAnalysis(false), 1400) }
+  function runAnalysis() {
+    setAnalysis(true); setAnalysisComplete(false)
+    setTimeout(() => { setAnalysis(false); setAnalysisComplete(true) }, 1400)
+  }
 
   return <div className="app-shell">
     <aside className="sidebar">
@@ -41,7 +45,7 @@ function App() {
     <main className="main">
       <header className="topbar"><div><div className="eyebrow">PRODUCT DISCOVERY</div><h1>{page === 'Overview' ? 'Turn feedback into better decisions.' : page}</h1><p className="page-description">{page === 'Overview' ? 'Find the signal in customer feedback, then make the product decision.' : 'Explore the evidence and decide what deserves your attention.'}</p></div><button className="primary" onClick={() => setShowAdd(true)}><Upload size={16} /> Add feedback</button></header>
       {notice && <div className="notice"><CircleCheck size={16} /> {notice}</div>}
-      {page === 'Overview' && <Overview feedback={feedback} analysis={analysis} runAnalysis={runAnalysis} setPage={setPage} />}
+      {page === 'Overview' && <Overview feedback={feedback} analysis={analysis} analysisComplete={analysisComplete} runAnalysis={runAnalysis} setPage={setPage} />}
       {page === 'Feedback' && <FeedbackPage feedback={feedback} />}
       {page === 'Opportunities' && <OpportunityTable detailed />}
       {page === 'Prioritization' && <Prioritization />}
@@ -50,7 +54,7 @@ function App() {
   </div>
 }
 
-function Overview({ feedback, analysis, runAnalysis, setPage }) {
+function Overview({ feedback, analysis, analysisComplete, runAnalysis, setPage }) {
   const themes = [
     ['Too much manual work', 'Customers describe repetitive administrative tasks and duplicate entry.', '8 mentions', '5 customers', 'High'],
     ['Reporting is hard to act on', 'Customers can access data but struggle to turn it into useful decisions.', '6 mentions', '4 customers', 'High'],
@@ -60,7 +64,7 @@ function Overview({ feedback, analysis, runAnalysis, setPage }) {
     <section className="summary-grid"><Stat icon={MessageSquareText} label="Feedback analyzed" value={feedback.length + 20} note="from 12 customers" /><Stat icon={BrainCircuit} label="Problems identified" value="7" note="3 high-confidence themes" /><Stat icon={Lightbulb} label="Opportunities" value="3" note="ready for prioritization" /></section>
     <section className="content-grid">
       <div className="panel themes-panel"><div className="panel-heading"><div><h2>Top customer themes</h2><p>What customers are telling you most often.</p></div><button className="text-button" onClick={() => setPage('Feedback')}>View feedback <ChevronRight size={15} /></button></div><div className="theme-list">{themes.map((t, i) => <div className="theme" key={t[0]}><div className="theme-number">0{i + 1}</div><div className="theme-body"><div className="theme-title">{t[0]} <span className={t[4] === 'High' ? 'pill high' : 'pill'}>{t[4]} confidence</span></div><p>{t[1]}</p><div className="evidence"><span>{t[2]}</span><span>•</span><span>{t[3]}</span></div></div></div>)}</div></div>
-      <div className="panel ai-panel"><div className="ai-header"><div className="ai-icon"><BrainCircuit size={18} /></div><div><h2>AI analysis</h2><p>Helping you find signal, not make the decision.</p></div></div><div className="ai-callout"><Sparkles size={16} /><div><strong>{analysis ? 'Analyzing feedback...' : 'One thing to investigate'}</strong><p>{analysis ? 'Looking for recurring problems, evidence, and gaps in understanding.' : 'Manual data entry appears across multiple customer segments. Before committing to a solution, quantify the time cost and identify where the workflow breaks down most.'}</p></div></div><div className="ai-meta"><CircleCheck size={15} /> Evidence linked to every recommendation</div><button className="secondary" onClick={runAnalysis}>{analysis ? 'Analyzing...' : 'Analyze new feedback'} <ChevronRight size={15} /></button></div>
+      <div className="panel ai-panel"><div className="ai-header"><div className="ai-icon"><BrainCircuit size={18} /></div><div><h2>AI analysis</h2><p>Helping you find signal, not make the decision.</p></div></div><div className="ai-callout"><Sparkles size={16} /><div><strong>{analysis ? 'Analyzing feedback...' : analysisComplete ? 'Analysis complete' : 'One thing to investigate'}</strong><p>{analysis ? 'Looking for recurring problems, evidence, and gaps in understanding.' : analysisComplete ? 'The latest feedback was reviewed against existing themes. No new high-confidence theme was added without supporting evidence.' : 'Manual data entry appears across multiple customer segments. Before committing to a solution, quantify the time cost and identify where the workflow breaks down most.'}</p></div></div><div className="ai-meta"><CircleCheck size={15} /> Evidence linked to every recommendation</div><button className="secondary" onClick={runAnalysis} disabled={analysis}>{analysis ? 'Analyzing...' : 'Analyze new feedback'} <ChevronRight size={15} /></button></div>
     </section><OpportunityTable onClick={() => setPage('Prioritization')} />
   </>
 }
