@@ -1,7 +1,0 @@
-{
-  "functions": {
-    "api/analyze.js": {
-      "runtime": "nodejs22.x"
-    }
-  }
-}
